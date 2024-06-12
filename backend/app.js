@@ -8,6 +8,8 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// MULTER FUNCTIONS
+
 const upload = multer({ dest: "image/" });
 
 const storage = multer.diskStorage({
@@ -21,7 +23,23 @@ const storage = multer.diskStorage({
 
 const multerFilter = function (req, file, cb) {
   const fileTypes = /jpeg|jpg|png|gif/;
+  const extName = fileTypes.test(path.extname(file.originalname).toLowerCase());
+  const mimeType = fileTypes.test(file.mimeType);
+  if (extName && mimeType) return cb(null, true);
+  else {
+    cb("Error: Please upload image only");
+  }
 };
+
+const uploadStorage = multer({
+  storage: storage,
+  fileFilter: multerFilter,
+  limits: {
+    fileSize: 20148,
+  },
+});
+
+// ROUTES
 
 app.get("/", (req, res) => {
   res.send("welcome");
