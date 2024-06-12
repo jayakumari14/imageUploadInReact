@@ -10,39 +10,39 @@ app.use(express.urlencoded({ extended: true }));
 
 // MULTER FUNCTIONS
 
-const upload = multer({ dest: "image/" });
-
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "image/");
+  destination: function (req, file, cb) {
+    return cb(null, "image");
   },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
+  filename: function (req, file, cb) {
+    return cb(null, `${Date.now()}-${file.originalname}`);
   },
 });
 
-const multerFilter = function (req, file, cb) {
-  const fileTypes = /jpeg|jpg|png|gif/;
-  const extName = fileTypes.test(path.extname(file.originalname).toLowerCase());
-  const mimeType = fileTypes.test(file.mimeType);
-  if (extName && mimeType) return cb(null, true);
-  else {
-    cb("Error: Please upload image only");
-  }
-};
-
-const uploadStorage = multer({
-  storage: storage,
-  fileFilter: multerFilter,
-  limits: {
-    fileSize: 20148,
-  },
-});
+const upload = multer({ storage: storage });
 
 // ROUTES
 
 app.get("/", (req, res) => {
   res.send("welcome");
+});
+
+// app.post("/upload-single", uploadStorage.single("image"), (req, res, err) => {
+//   if (err) {
+//     console.log("err", err);
+//     return;
+//   }
+//   console.log(req.file);
+//   res.send("File Uploaded");
+// });
+
+app.post("/upload-single", upload.array("image", 10), (req, res, err) => {
+  if (err) {
+    console.log("err", err);
+    return;
+  }
+  console.log(req.file);
+  res.send("Multiple File Uploaded");
 });
 
 const PORT = process.env.PORT || 5000;

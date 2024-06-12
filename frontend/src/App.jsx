@@ -2,14 +2,19 @@ import { useState } from "react";
 import axios from "axios";
 
 const App = () => {
-  const [file, setFile] = useState("");
+  const [file, setFile] = useState();
   const [description, setDescription] = useState("");
-  const [imageName, setImageName] = useState("");
+  const [imageName, setImageName] = useState();
 
   const submitForm = async (e) => {
     e.preventDefault();
     const formData = new FormData();
-    formData.append("image", file);
+    // formData.append("image", file[0]);
+
+    for (let i = 0; i < file.length; i++) {
+      formData.append("image", file[i]);
+    }
+
     formData.append("description", description);
 
     const result = await axios.post(
@@ -29,11 +34,11 @@ const App = () => {
           <label>Choose File: </label>
           <input
             type="file"
-            name="image"
             onChange={(e) => {
               setFile(e.target.files);
             }}
             accept="image/*"
+            multiple
           />{" "}
           <br />
           <label>Description: </label>
